@@ -3,16 +3,17 @@
 #include "stdlib.h"
 #include "locale.h"
 #include "time.h"
+#define SIZE 5
 
-
-char nome[5][50];
-char email[5][50];
-char datahora[5][50];
-int cadastrado[5];
-int op, i, flag;
+char nome[SIZE][50];
+char email[SIZE][50];
+char datahora[SIZE][50];
+int cadastrado[SIZE];
+int op, i, flag, sorteioate = 0;
 void cadastro();
 void pesquisa();
 void listar();
+void sorteio();
 
 main()
 {
@@ -46,6 +47,7 @@ main()
                 listar();
                 break;
             case 5:
+                sorteio();
                 break;
             case 6:
                 break;
@@ -60,7 +62,7 @@ main()
 void cadastro()
 {
     static int linha = 0;
-    if(linha < 5)
+    if(linha < SIZE)
     {
         system("cls");
         printf("\n============ FORMULARIO DE CADASTRO ============");
@@ -87,6 +89,8 @@ void cadastro()
         printf("\n--------------------------------");
         getch();
         linha++;
+        // acomula a quantidade de cadastrada para fazer o sorteio
+        sorteioate = sorteioate + 1;
 
     }
     else
@@ -105,7 +109,7 @@ void pesquisa()
     printf("\n============ PESQUISA POR E-MAIL ============");
     printf("\n E-mail: ");
     scanf("%s", emailpesquisa);
-    for(i = 0; i < 5; i++)
+    for(i = 0; i < SIZE; i++)
     {
         if(strcmp(email[i], emailpesquisa) == 0)
         {
@@ -130,7 +134,7 @@ void listar()
     flag = 0;
     system("cls");
     printf("\n============ LISTA DE TODOS CADASTRADOS ============");
-    for(i = 0; i < 5; i++)
+    for(i = 0; i < SIZE; i++)
     {
         if(cadastrado[i] == 1)
         {
@@ -147,4 +151,28 @@ void listar()
         printf("\n Não possui ninguém cadastrado! ");
     }
     getch();
+} // End listar
+
+void sorteio(){
+    int sorteado;
+    system("cls");
+    printf("\n=================== SOTEIO ===================");
+    printf("\n Tecle qualquer tecla para realizar o sorteio");
+    printf("\n==============================================");
+    getch();
+    // funcção rand() pega numeros aleatorio de 0 ate o numero informado depois do %
+    sorteado = rand() % sorteioate;
+
+    // mostrar ticket do sorteado
+    system("cls");
+    printf("\n=================== SOTEIO ===================");
+    printf("\n        O vencedor do sorteio foi: ");
+    printf("\n==============================================");
+    printf("\n------------ Ticket ------------");
+    printf("\n Nome: %s", nome[sorteado]);
+    printf("\n Email: %s", email[sorteado]);
+    printf("%s", datahora[sorteado]);
+    printf("\n--------------------------------\n");
+    getch();
+
 }
