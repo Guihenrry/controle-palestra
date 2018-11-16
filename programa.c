@@ -13,7 +13,7 @@ struct dados { // Estrutura de dados
     char especial[3];
     int assento;
 };
-int op, i, j, nassento;
+int op, i, j, nassento, linha, coluna;
 int  idEspecial[3], statusEspeciais[3];// assentos especiais
 int  idConvidados[10], statusConvidados[10];// assentos resevados para os convidados
 int  idAssentos[4][10], statusAssentos[4][10]; // matriz assentos comun
@@ -155,15 +155,32 @@ main()
                                     else // assento livre
                                     {
                                         statusEspeciais[nassento - 1] = 1;
-                                        idEspecial[nassento - 1] = idg;
-                                        idg = idg + 1;
+                                        idEspecial[nassento - 1] = idg; // guarda o id do vissitante que esta alocado nesse assento
+                                        idg = idg + 1; // gera um novo id
                                         printf("\n Reserva realizada com sucesso!");
                                         getch();
                                     }
                                 }
                                 else // assento comun
                                 {
-                                    printf("é comun");
+                                    printf("\n Informe a linha e a coluna do assento desejado: ");
+                                    printf("\n Linha(1 a 4): ");
+                                    scanf("%d", &linha);
+                                    printf(" Coluna(1 a 10): ");
+                                    scanf("%d", &coluna);
+                                    if(statusAssentos[linha - 1][coluna - 1] == 1)//assento
+                                    {
+                                        printf("\n Assento ja reservado. Verifique outra opção");
+                                        getch();
+                                    }
+                                    else// assento livre
+                                    {
+                                        statusAssentos[linha - 1][coluna - 1] = 1;
+                                        idAssentos[linha - 1][coluna - 1] = idg; // guarda o id do visitante no assento
+                                        idg = idg + 1; // gera novo id
+                                        printf("\n Reserva realizada com sucesso!");
+                                        getch();
+                                    }
                                     getch();
                                 }
                             }
@@ -227,7 +244,7 @@ void mostrarAssentos()
     {
         if(statusEspeciais[i] == 1)//poltrona ocupada
         {
-            printf(" [ - ] ");
+            printf(" [---] ");
         }
         else// poltrona livre
         {
@@ -239,7 +256,7 @@ void mostrarAssentos()
     {
         if(statusConvidados[i] == 1)//poltrona ocupada
         {
-            printf(" [ - ] ");
+            printf(" [---] ");
         }
         else// poltrona livre
         {
@@ -258,7 +275,7 @@ void mostrarAssentos()
         {
             if(statusAssentos[i][j] == 1)// assento ocupadp
             {
-                printf(" [ - ] ");
+                printf(" [---] ");
             }
             else // assento livre
             {
