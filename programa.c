@@ -1,10 +1,12 @@
+/* Programa em c de controle de visitantes em uma palestra*/
 #include "conio.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "locale.h"
 #include "time.h"
 
-struct dados { // Estrutura de dados
+/* Estrutura dos dados do visitante */
+struct dados {
     int id;
     char nome[50];
     char email[50];
@@ -15,25 +17,36 @@ struct dados { // Estrutura de dados
     char datahora[50];
     char assento[50];
 };
-int op, i, j, nassento, linha, coluna, encontrou, sorteado, ativasorteio, pos;
-char pesquisa[50];
-int  idEspecial[3], statusEspeciais[3];// assentos especiais
-int  idConvidados[10], statusConvidados[10];// assentos resevados para os convidados
-int  idAssentos[4][10], statusAssentos[4][10]; // matriz assentos comun
+
+/* Variaveis globais*/
+int i, j;// Variaveis de incrementos
 int idg = 0; // id global
-char textAssento[50];
+int idEspecial[3], statusEspeciais[3];// assentos especiais
+int idConvidados[10], statusConvidados[10];// assentos resevados para os convidados
+int idAssentos[4][10], statusAssentos[4][10]; // matriz assentos comun
+
+/* Funções */
+void mostrarAssentos();// mostra na tela os assentos [   ] = livre [---] = ocupado
+void ticket(int id);//  mostra na tela ticket com nome, assento data e hora
+void sorteio();// realiza sorteio colcocando de fora os convidado
+void enviarEmail(int id);// mostar tela de email para id informado
 
 
-struct dados visitante[53];// Declaração do numero de visitante
-
-// Funções
-void mostrarAssentos();
-void ticket(int id);
-void sorteio();
-
+/* Declaração do numero de visitante */
+struct dados visitante[53];
 
 main()
 {
+    setlocale(LC_ALL, "Portuguese");
+    /* Inicialização das variaveis */
+    int op;//variavel de escolha de opção
+    int nassento;// Escolher o numero de um assento especial ou convidado
+    int linha;// Escolher a linha do assento comum
+    int coluna;//Escolher a coluna do assento comun
+    int encontrou;// flag para verificar se encontrou
+    int ativasorteio;// quando alguem esta apto o flag vale 1
+    int pos;// guarda a posição do assento
+    char pesquisa[50];//pesquisar nome ou email para enviar email
 
     // prencher os vetores e matriz com 0
     for(i = 0; i < 3; i++)
@@ -54,7 +67,7 @@ main()
         }
     }
 
-    setlocale(LC_ALL, "Portuguese");
+    /* variaveis do login*/
     int logincerto = 0;
     char usuario[20];
     char senha[10];
@@ -516,14 +529,7 @@ main()
                                     }
                                     if(encontrou == 1)// enviar o email na pos guardada
                                     {
-                                        system("cls");
-                                        printf("\n------------------------ ENVIAR E-MAIL ------------------------");
-                                        printf("\n\n PARA: %s                                              ", visitante[pos].email);
-                                        printf("\n ASSUNTO: Direito Humanos                              \n");
-                                        printf("\n---------------------------------------------------------------");
-                                        printf("\n\n                O que são direitos humanos \n\n  Direitos humanos são os direitos básicos de todos os seres\n humanos. São direitos civis e políticos; direitos\n econômicos, sociais e culturais;");
-                                        printf("\n\n\n Precione qualquer tecla para enviar o email...");
-                                        getch();
+                                        enviarEmail(pos);
                                     }
                                     else
                                     {
@@ -531,9 +537,102 @@ main()
                                         getch();
                                     }
                                     break;
-                                case 2:
+                                case 2:// por email
+                                    encontrou = 0;// verifica se encontrou
+                                    printf("\n Email: ");
+                                    fflush(stdin);
+                                    gets(pesquisa);
+                                    for(i = 0; i < idg; i++)
+                                    {
+                                        if(strcmp(pesquisa, visitante[i].email) == 0)// verifica se o email esta cadastrado
+                                        {
+                                            encontrou = 1;
+                                            pos = i;
+                                        }
+                                    }
+
+                                    if(encontrou == 1)// Enviar o email na posição encontrada
+                                    {
+                                        enviarEmail(pos);
+                                    }
+                                    else
+                                    {
+                                        printf("\n Não foi encotrado ninguem com esse nome.");
+                                        getch();
+                                    }
                                     break;
-                                case 3:
+                                case 3:// Por Assento
+                                    system("cls");
+                                    printf("\n=========================================");
+                                    printf("\n            TIPO DE ASSENTO ");
+                                    printf("\n=========================================");
+                                    printf("\n |1| Covidado");
+                                    printf("\n |2| Assentos especiais");
+                                    printf("\n |3| Comum");
+                                    printf("\n----------------------------------------");
+                                    printf("\n Escolha uma opção: ");
+                                    scanf("%d", &op);
+                                    /* Mostrar e escolher assento */
+                                    system("cls");
+                                    printf("\n                          ESCOLHA UM ASSENTO PARA ENVIAR O EMAIL\n\n");
+                                    mostrarAssentos();
+                                    if(op == 1)// se for um convidado
+                                    {
+                                        printf("\n----------------------------------------------------");
+                                        printf("\n  INFORME A COLUNA DO ASSENTO DE CONVIDADO DESEJADA ");
+                                        printf("\n----------------------------------------------------");
+                                        printf("\n Coluna(1 - 10): ");
+                                        scanf("%d", &nassento);
+
+                                        if(statusConvidados[nassento - 1] == 1)// verifica se esta ocupada
+                                        {
+                                            pos = idConvidados[nassento - 1];
+                                            enviarEmail(pos);
+                                        }
+                                        else// se ja estiver liberado
+                                        {
+                                            printf("\n Não tem ninguem neste assento.");
+                                            getch();
+                                        }
+                                    }
+                                    if(op == 2)// Assento especial
+                                    {
+                                        printf("\n--------------------------------------------------");
+                                        printf("\n  INFORME A COLUNA DO ASSENTO ESPECIAL DESEJADA ");
+                                        printf("\n--------------------------------------------------");
+                                        printf("\n Coluna(1 - 3): ");
+                                        scanf("%d", &nassento);
+                                        if(statusEspeciais[nassento - 1] == 1)//verifica se esta ocupada se tiver envia o email
+                                        {
+                                            pos = idEspecial[nassento - 1];
+                                            enviarEmail(pos);
+                                        }
+                                        else
+                                        {
+                                            printf("\n Não tem ninguem neste assento.");
+                                            getch();
+                                        }
+                                    }
+                                    if(op == 3)//Assento comun
+                                    {
+                                        printf("\n--------------------------------------------------");
+                                        printf("\n   INFORME A LINHA E A COLUNA DO ASSENTO COMUM ");
+                                        printf("\n--------------------------------------------------");
+                                        printf("\n Linha(1 - 4): ");
+                                        scanf("%d", &linha);
+                                        printf(" Coluna(1 - 10): ");
+                                        scanf("%d", &coluna);
+                                        if(statusAssentos[linha - 1][coluna - 1] == 1)//verifica se esta ocupado se tiver envia o email
+                                        {
+                                            pos = idAssentos[linha - 1][coluna - 1];
+                                            enviarEmail(pos);
+                                        }
+                                        else
+                                        {
+                                            printf("\n Não tem ninguem neste assento.");
+                                            getch();
+                                        }
+                                    }
                                     op = 0;
                                     break;
                                 default:
@@ -541,7 +640,28 @@ main()
                                     break;
                             }
                             break;
-                        case 2:
+                        case 2:// Todos os visitante
+                            if(idg > 0)//ja tem alguem cadastrado
+                            {
+                                system("cls");
+                                printf("\n------------------------ ENVIAR E-MAIL ------------------------");
+                                printf("\n\n PARA: ");
+                                for(i = 0; i < idg; i++)// for que peccore todos os visitantes
+                                {
+                                    printf(" %s; ", visitante[i].email);//mostar email na tela
+                                }
+                                printf("\n ASSUNTO: Direito Humanos                              \n");
+                                printf("\n---------------------------------------------------------------");
+                                printf("\n\n                O que são direitos humanos \n\n  Direitos humanos são os direitos básicos de todos os seres\n humanos. São direitos civis e políticos; direitos\n econômicos, sociais e culturais;");
+                                printf("\n\n\n Precione qualquer tecla para enviar o email...");
+                                getch();
+                            }
+                            else
+                            {
+                                printf("\n Não possui ninguem cadastrado ");
+                                getch();
+                            }
+
                             break;
                         case 3:
                             break;
@@ -632,6 +752,7 @@ void ticket(int id)
 
 void sorteio()
 {
+    int sorteado;
     sorteado = rand() % idg;
     if(strcmp(visitante[sorteado].convidado, "s") == 0)// verifica se é convidado se for sorteia novamente
     {
@@ -650,3 +771,15 @@ void sorteio()
         getch();
     }
 }// End sorteio
+
+void enviarEmail(int id)
+{
+    system("cls");
+    printf("\n------------------------ ENVIAR E-MAIL ------------------------");
+    printf("\n\n PARA: %s;                                              ", visitante[id].email);
+    printf("\n ASSUNTO: Direito Humanos                              \n");
+    printf("\n---------------------------------------------------------------");
+    printf("\n\n                O que são direitos humanos \n\n  Direitos humanos são os direitos básicos de todos os seres\n humanos. São direitos civis e políticos; direitos\n econômicos, sociais e culturais;");
+    printf("\n\n\n Precione qualquer tecla para enviar o email...");
+    getch();
+}// End enviarEmail
